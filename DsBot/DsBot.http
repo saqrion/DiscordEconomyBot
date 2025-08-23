@@ -1,0 +1,6 @@
+@DsBot_HostAddress = http://localhost:5091
+
+GET {{DsBot_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

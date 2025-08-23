@@ -1,0 +1,38 @@
+# === .NET build artifacts ===
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+
+# === Visual Studio / Rider / VS Code ===
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# === OS-specific ===
+Thumbs.db
+.DS_Store
+
+# === Packages ===
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+
+# === Config / Secrets ===
+appsettings.json
+appsettings.*.json
+config.json
+*.db
+.env
+
+# === Logs ===
+*.log
+logs/
