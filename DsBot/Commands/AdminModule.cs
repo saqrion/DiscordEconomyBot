@@ -72,5 +72,24 @@ namespace DsBot.Commands
             await FollowupAsync(embed: embed.Build(), ephemeral: true);
         }
 
+        [SlashCommand("clear", "Deletes the specified number of chat messages")]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
+        public async Task DeleteChatMessagesAsync(int amount)
+        {
+            if (amount <= 0 || amount > 100)
+            {
+                await RespondAsync("Можно удалить только от 1 до 100 сообщений", ephemeral: true);
+                return;
+            }
+
+            var channel = Context.Channel as ITextChannel;
+            var messages = await Context.Channel.GetMessagesAsync(amount).FlattenAsync();
+            var deletable = messages.Where(m => (DateTimeOffset.UtcNow - m.Timestamp).TotalDays < 14);
+
+            await channel.DeleteMessagesAsync(deletable);
+
+            await RespondAsync($"Успешно удалено {amount} сообщений", ephemeral:true);
+        }               
+
     }
 }
