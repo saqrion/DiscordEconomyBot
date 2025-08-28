@@ -1,10 +1,8 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using DsBot.Data;
 using DsBot.Models;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace DsBot.Commands
 {
