@@ -1,9 +1,6 @@
 ﻿using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 using DsBot.Commands;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 
 namespace DsBot.Services
 {
@@ -12,19 +9,16 @@ namespace DsBot.Services
         private readonly DiscordSocketClient _client;
         private readonly IServiceProvider _services;
         private readonly IConfiguration _config;
-        private readonly VoiceTrackingService _voiceTrackingService;
-        private  CommandHandler _commandHandler;
-        private readonly InteractionHandler _interactionHandler;
+        private CommandHandler _commandHandler;
 
-
-        public BotService(DiscordSocketClient client, IServiceProvider services, 
-            IConfiguration config, VoiceTrackingService voiceTrackingService, InteractionHandler interactionHandler)
+        public BotService(
+            DiscordSocketClient client,
+            IServiceProvider services,
+            IConfiguration config)
         {
+            _client = client;
             _services = services;
             _config = config;
-            _client = client;
-            _voiceTrackingService = voiceTrackingService;
-            _interactionHandler = interactionHandler;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -38,20 +32,24 @@ namespace DsBot.Services
             _client.Ready += async () =>
             {
                 Console.WriteLine("✅ Bot online!");
-                await _interactionHandler.InitializeAsync();
+                using var scope = _services.CreateScope();
+                var interactionHandler = scope.ServiceProvider.GetRequiredService<InteractionHandler>();
+                await interactionHandler.InitializeAsync();
             };
-
 
             string token = _config["Discord:Token"];
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
 
-            await _voiceTrackingService.InitializeAsync();
+            using (var scope = _services.CreateScope())
+            {
+                var voiceTrackingService = scope.ServiceProvider.GetRequiredService<VoiceTrackingService>();
+                await voiceTrackingService.InitializeAsync();
 
-            var commands = _services.GetServices<IBotCommand>();
-            _commandHandler = new CommandHandler(_client, _services, commands, _config);
-            await _commandHandler.InitializeAsync();
-            //await _interactionHandler.InitializeAsync();
+                var commands = scope.ServiceProvider.GetServices<IBotCommand>();
+                _commandHandler = new CommandHandler(_client, scope.ServiceProvider, commands, _config);
+                await _commandHandler.InitializeAsync();
+            }
 
             await Task.Delay(-1, stoppingToken);
         }

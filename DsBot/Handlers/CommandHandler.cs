@@ -1,8 +1,7 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using DsBot.Commands;
 
-namespace DsBot.Services;
+namespace DsBot.Handlers;
 
 public class CommandHandler
 {
