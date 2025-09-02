@@ -10,6 +10,7 @@ public class BotDbContext : DbContext
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<VoiceSession> VoiceSessions { get; set; }
     public DbSet<VoiceRewardSettings> VoiceRewardSettings { get; set; }
+    public DbSet<House> Houses { get; set; }
 
     public BotDbContext(DbContextOptions<BotDbContext> options) : base(options) { }
 

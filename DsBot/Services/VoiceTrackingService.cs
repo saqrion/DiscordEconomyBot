@@ -1,6 +1,4 @@
-﻿using Discord;
-using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
+﻿using Discord.WebSocket;
 using DsBot.Data;
 using DsBot.Models;
 

@@ -1,8 +1,6 @@
-﻿using Discord.WebSocket;
-using DsBot.Data;
+﻿using DsBot.Data;
 using DsBot.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Numerics;
 
 namespace DsBot.Services
 {
