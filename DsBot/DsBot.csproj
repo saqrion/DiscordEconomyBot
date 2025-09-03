@@ -27,7 +27,6 @@
   <ItemGroup>
     <Folder Include="Commands\Admin\" />
     <Folder Include="DTOs\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
 </Project>

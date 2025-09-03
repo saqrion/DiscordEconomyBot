@@ -1,4 +1,4 @@
-﻿namespace DsBot.Services
+﻿namespace DsBot.Handlers
 {
     public interface IHandler
     {

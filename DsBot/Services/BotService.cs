@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using DsBot.Commands;
+using DsBot.Handlers;
 
 namespace DsBot.Services
 {
@@ -9,16 +10,21 @@ namespace DsBot.Services
         private readonly DiscordSocketClient _client;
         private readonly IServiceProvider _services;
         private readonly IConfiguration _config;
-        private CommandHandler _commandHandler;
+        private readonly InteractionHandler _interactionHandler;
+        private readonly VoiceTrackingService _voiceTrackingService;
 
         public BotService(
             DiscordSocketClient client,
             IServiceProvider services,
-            IConfiguration config)
+            IConfiguration config,
+            InteractionHandler interactionHandler,
+            VoiceTrackingService voiceTrackingService)
         {
             _client = client;
             _services = services;
             _config = config;
+            _interactionHandler = interactionHandler;
+            _voiceTrackingService = voiceTrackingService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,22 +38,18 @@ namespace DsBot.Services
             _client.Ready += async () =>
             {
                 Console.WriteLine("✅ Bot online!");
-                using var scope = _services.CreateScope();
-                var interactionHandler = scope.ServiceProvider.GetRequiredService<InteractionHandler>();
-                await interactionHandler.InitializeAsync();
+                await _interactionHandler.InitializeAsync();
             };
 
             string token = _config["Discord:Token"];
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
 
+            await _voiceTrackingService.InitializeAsync();
             using (var scope = _services.CreateScope())
             {
-                var voiceTrackingService = scope.ServiceProvider.GetRequiredService<VoiceTrackingService>();
-                await voiceTrackingService.InitializeAsync();
-
                 var commands = scope.ServiceProvider.GetServices<IBotCommand>();
-                _commandHandler = new CommandHandler(_client, scope.ServiceProvider, commands, _config);
+                var _commandHandler = new CommandHandler(_client, scope.ServiceProvider, commands, _config);
                 await _commandHandler.InitializeAsync();
             }
 

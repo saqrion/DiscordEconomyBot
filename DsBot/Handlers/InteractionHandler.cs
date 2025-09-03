@@ -27,6 +27,11 @@ namespace DsBot.Services
 
             await _interactionService.RegisterCommandsToGuildAsync(ulong.Parse(_configuration["Discord:GuildId"]));
             //await _interactionService.RegisterCommandsGloballyAsync();
+
+            _interactionService.Log += async (msg) =>
+            {
+                Console.WriteLine($"[Interaction Service] {msg}");
+            };
         }
 
         private async Task HandleInteraction(SocketInteraction interaction)
@@ -34,5 +39,7 @@ namespace DsBot.Services
             var ctx = new SocketInteractionContext(_client, interaction);
             await _interactionService.ExecuteCommandAsync(ctx, _services);
         }
+
+
     }
 }

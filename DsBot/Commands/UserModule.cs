@@ -1,20 +1,19 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using DsBot.Data;
 using DsBot.Models;
+using DsBot.Repositories;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace DsBot.Commands
 {
     public class UserModule : InteractionModuleBase<SocketInteractionContext>
     {
-        private readonly BotDbContext _botDbContext;
+        private readonly IUserRepository _userRepository;
 
-        public UserModule(BotDbContext botDbContext)
+        public UserModule(IUserRepository userRepository)
         {
-            _botDbContext = botDbContext;
+            _userRepository = userRepository;
         }
 
         [SlashCommand("balance", "Show your balance")]
@@ -22,23 +21,30 @@ namespace DsBot.Commands
         {
             await DeferAsync(ephemeral: true);
 
-            var userDb = await _botDbContext.Set<User>()
-                .Include(u => u.Balances)
-                .ThenInclude(b => b.Currency)
-                .FirstOrDefaultAsync(u => u.DiscordUserId == Context.User.Id);
+            var user = await _userRepository.GetUserWithBalanceAsync(Context.User.Id);
+
+            if (user == null)
+            {
+                user = new User() 
+                { 
+                    DiscordUserId = Context.User.Id,
+                    UserName = Context.User.Username
+                };
+                await _userRepository.AddAsync(user);
+            }
 
             var embed = new EmbedBuilder()
-                .WithTitle($"Баланс {userDb.UserName}")
+                .WithTitle($"Баланс {user.UserName}")
                 .WithColor(Color.Gold)
                 .WithTimestamp(DateTimeOffset.Now);
 
-            if (userDb.Balances == null || !userDb.Balances.Any())
+            if (user.Balances == null || !user.Balances.Any())
             {
                 embed.WithDescription("Валют пока нет");
             }
             else
             {
-                foreach (var balance in userDb.Balances)
+                foreach (var balance in user.Balances)
                 {
                     embed.AddField(
                         name: balance.Currency.Name,
@@ -47,6 +53,8 @@ namespace DsBot.Commands
                     );
                 }
             }
+
+
 
             await FollowupAsync(embed: embed.Build());
         }

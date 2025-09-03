@@ -1,8 +1,8 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using DsBot.Commands;
 using DsBot.Data;
+using DsBot.Repositories;
 using DsBot.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -36,7 +36,10 @@ builder.Services.AddScoped<RewardService>();
 builder.Services.AddScoped<VoiceRewardSettingsService>();
 builder.Services.AddScoped<HouseService>();
 
-// autoreg commands and handlers
+//repo
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// handlers via reflection
 
 var assembly = Assembly.GetExecutingAssembly();
 builder.Services.AddHandlers(assembly);

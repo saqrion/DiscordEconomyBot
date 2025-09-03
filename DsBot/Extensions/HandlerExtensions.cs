@@ -1,4 +1,6 @@
-﻿using DsBot.Commands;
+﻿using Discord.Interactions;
+using DsBot.Commands;
+using DsBot.Handlers;
 using System.Reflection;
 
 namespace DsBot.Services
@@ -24,7 +26,7 @@ namespace DsBot.Services
         public static IServiceCollection AddBotCommands (this IServiceCollection services, Assembly? assembly = null)
         {
             assembly ??= Assembly.GetExecutingAssembly ();
-            var commandType = typeof(IBotCommand);
+            var commandType = typeof(InteractionModuleBase);
 
             var commands = assembly.GetTypes()
                 .Where(c => commandType.IsAssignableFrom(c) && c.IsClass && !c.IsAbstract);
